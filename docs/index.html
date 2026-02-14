@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ollama Curriculums — Análisis de CVs con IA local</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Ollama Curriculums</h1>
+  <p class="tagline">De un PDF a un resumen profesional generado por inteligencia artificial local — sin enviar datos a la nube.</p>
+  <div class="scroll-hint">&#8595;</div>
+</div>
+
+<!-- TECNOLOGÍAS -->
+<section id="tech">
+  <h2>Tecnologías</h2>
+  <div class="badges">
+    <span class="badge badge--py">Python 3</span>
+    <span class="badge badge--py">pypdf</span>
+    <span class="badge badge--py">markdownify</span>
+    <span class="badge badge--py">requests</span>
+    <span class="badge badge--ai">Ollama</span>
+    <span class="badge badge--ai">qwen2.5:3b-instruct</span>
+    <span class="badge badge--tool">argparse</span>
+  </div>
+  <p>El proyecto combina procesamiento de documentos con inteligencia artificial local. Todo se ejecuta en la máquina del usuario — privacidad total.</p>
+</section>
+
+<!-- PIPELINE -->
+<section id="pipeline">
+  <h2>Pipeline de procesamiento</h2>
+  <div class="pipeline">
+    <div class="stage">
+      <div class="stage-icon pdf">1</div>
+      <div class="stage-body">
+        <h3>PDF &rarr; Texto</h3>
+        <p><code>pypdf</code> extrae el texto de cada página del currículum. Se muestra el progreso página a página.</p>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="stage-icon md">2</div>
+      <div class="stage-body">
+        <h3>Texto &rarr; Markdown</h3>
+        <p><code>markdownify</code> convierte el texto plano a formato Markdown estructurado y legible.</p>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="stage-icon ai">3</div>
+      <div class="stage-body">
+        <h3>Markdown &rarr; Ollama</h3>
+        <p>El CV en Markdown se envía al modelo <strong>qwen2.5:3b-instruct</strong> a través de la API local de Ollama en <code>localhost:11434</code>.</p>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="stage-icon ai">4</div>
+      <div class="stage-body">
+        <h3>Resumen profesional</h3>
+        <p>La IA genera un resumen en tercera persona y emite una valoración sobre la idoneidad del candidato para el puesto docente.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CÓDIGO -->
+<section id="code">
+  <h2>Código destacado</h2>
+
+  <p>Extracción de PDF con progreso:</p>
+  <div class="code-block"><pre>reader = PdfReader(path_pdf)
+for i, page in enumerate(reader.pages, start=1):
+    text = page.extract_text() or ""
+    full_text += text + "\n\n"
+    print(f"Página {i}/{len(reader.pages)} extraída")</pre></div>
+
+  <p>Comunicación con Ollama:</p>
+  <div class="code-block"><pre>url = f"{host}/api/generate"
+payload = {
+    "model": modelo.strip(),
+    "prompt": prompt,
+    "stream": False,
+}
+response = requests.post(url, json=payload, timeout=600)
+return response.json()["response"].strip()</pre></div>
+</section>
+
+<!-- PROMPT -->
+<section id="prompt">
+  <h2>Prompt de análisis</h2>
+  <p>El prompt instruye al modelo para actuar como experto en selección de personal:</p>
+  <div class="prompt-box">
+    "Eres un experto en selección de personal y redacción de perfiles profesionales. Recibirás un currículum en formato Markdown. Tu tarea: leer el CV cuidadosamente, identificar habilidades clave, tecnologías, experiencia relevante y logros. Escribir un resumen profesional conciso en tercera persona (7–10 líneas, ~200 palabras). Emite una opinión acerca de si el perfil es válido para el puesto de trabajo: profesor de ciclos formativos."
+  </div>
+</section>
+
+<!-- CV DE EJEMPLO -->
+<section id="cv">
+  <h2>CV procesado</h2>
+  <div class="cv-card">
+    <h3>José Vicente Carratalá Sánchis</h3>
+    <div class="role">Diseñador Industrial · Profesor · CEO JOCARSA</div>
+
+    <div class="section-title">Experiencia docente</div>
+    <ul>
+      <li>Profesor de ciclos formativos en IMF (2023–2024): DAM/DAW — Programación, BBDD, Desarrollo web</li>
+      <li>Profesor en TAME (2020): DAM — Programación, Interfaces, Acceso a datos</li>
+      <li>Profesor en Capitol empresa (2017–2022): Marketing, SMR, DAM, Comercio</li>
+      <li>Formador en LinkedIn Learning: cursos de diseño 3D y programación</li>
+    </ul>
+
+    <div class="section-title">Habilidades técnicas</div>
+    <ul>
+      <li>Programación: Python, PHP, JavaScript, Java, C#, SQL</li>
+      <li>Diseño 3D: Blender, 3ds Max, Cinema 4D, Realidad Virtual</li>
+      <li>Web: HTML/CSS, React, Node.js, WordPress</li>
+      <li>IA / ML: Ollama, DeepSeek, LangChain</li>
+    </ul>
+
+    <div class="section-title">Formación</div>
+    <ul>
+      <li>Ingeniería Técnica en Diseño Industrial — UPV</li>
+      <li>Máster en Profesorado de Educación Secundaria</li>
+      <li>Certificaciones: Google, Microsoft, Autodesk</li>
+    </ul>
+  </div>
+</section>
+
+<!-- RESULTADO IA -->
+<section id="result">
+  <h2>Resultado del análisis</h2>
+  <div class="result-box">
+    <h4>Resumen generado por qwen2.5:3b-instruct</h4>
+    <p>José Vicente Carratalá Sánchis es un profesional multidisciplinar con más de 20 años de experiencia combinando diseño industrial, desarrollo de software y docencia en ciclos formativos. Como CEO de JOCARSA ha dirigido proyectos de aplicaciones multiplataforma, gráficos 3D e infografía CGI para clientes empresariales. Su trayectoria docente abarca centros como IMF, TAME y Capitol, donde ha impartido módulos de programación, bases de datos, desarrollo web, interfaces de usuario y acceso a datos en los grados superiores de DAM y DAW. Además, es formador certificado en LinkedIn Learning con cursos de diseño 3D y programación. Domina un amplio stack tecnológico que incluye Python, PHP, Java, JavaScript, SQL, Blender y herramientas de realidad virtual.</p>
+    <p style="margin-top:1rem;color:var(--accent2);font-weight:600">✔ Perfil VÁLIDO para profesor de ciclos formativos de formación profesional. Su combinación de experiencia empresarial real y años de docencia en DAM/DAW le convierten en un candidato idóneo.</p>
+  </div>
+</section>
+
+<!-- MEJORAS -->
+<section id="improvements">
+  <h2>Mejoras aplicadas</h2>
+  <ul>
+    <li><strong>Docstrings</strong> con formato Google en <code>pdf_to_md()</code>.</li>
+    <li><strong>Verificación de archivo</strong> con <code>os.path.isfile()</code> antes de procesarlo.</li>
+    <li><strong>Progreso por página</strong> al extraer el PDF.</li>
+    <li><strong>argparse</strong> para poder pasar archivo y modelo por línea de comandos.</li>
+    <li><strong>Errores específicos:</strong> ConnectionError, Timeout, HTTPError separados.</li>
+    <li><strong>Timing:</strong> muestra cuántos segundos tardó la IA en responder.</li>
+  </ul>
+</section>
+
+<footer>
+  <p>Ollama Curriculums &mdash; Proyecto Intermodular &mdash; <a href="https://github.com/MutenRos/Proyecto-intermodular-004-Proyecto-ollama-curriculums">GitHub</a></p>
+</footer>
+
+</body>
+</html>
