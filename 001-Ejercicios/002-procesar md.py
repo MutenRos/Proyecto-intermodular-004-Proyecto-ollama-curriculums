@@ -1,20 +1,24 @@
 #!/usr/bin/env python3
+import argparse
 import pathlib
 import sys
+import time
 import requests
 from textwrap import dedent
 
 # ---------------------------------------------------------
-# ⭐ AQUÍ defines el nombre del archivo Markdown
+# ⭐ AQUI defines el nombre del archivo Markdown
 # ---------------------------------------------------------
 ARCHIVO_MD = "CV José Vicente Carratalá Sánchis.md"  # <-- cámbialo por el archivo que quieras
+MODELO_DEFECTO = "qwen2.5:3b-instruct"
+HOST_DEFECTO = "http://localhost:11434"
 # ---------------------------------------------------------
 
 
 def resumir_cv(
     ruta_archivo: str,
-    modelo: str = "qwen2.5:3b-instruct",     # <-- sin espacio al final
-    host: str = "http://localhost:11434"
+    modelo: str = MODELO_DEFECTO,
+    host: str = HOST_DEFECTO
 ) -> str:
     """
     Lee un CV en Markdown, lo envía a Ollama (endpoint /api/generate)
@@ -22,7 +26,13 @@ def resumir_cv(
     """
 
     # Leer el archivo Markdown
-    contenido_md = pathlib.Path(ruta_archivo).read_text(encoding="utf-8")
+    ruta = pathlib.Path(ruta_archivo)
+    if not ruta.is_file():
+        print(f"Error: no se encontró el archivo '{ruta_archivo}'", file=sys.stderr)
+        sys.exit(1)
+
+    contenido_md = ruta.read_text(encoding="utf-8")
+    print(f"CV cargado: {len(contenido_md)} caracteres desde '{ruta_archivo}'")
 
     # Prompt en español
     prompt = dedent(
@@ -57,9 +67,19 @@ def resumir_cv(
         "stream": False,
     }
 
+    print(f"Enviando a Ollama ({modelo}) en {host}...")
+    inicio = time.time()
+
     try:
         response = requests.post(url, json=payload, timeout=600)
         response.raise_for_status()
+    except requests.exceptions.ConnectionError:
+        print(f"Error: no se pudo conectar con Ollama en {host}.", file=sys.stderr)
+        print("Asegúrate de que Ollama está ejecutándose.", file=sys.stderr)
+        sys.exit(1)
+    except requests.exceptions.Timeout:
+        print("Error: la petición a Ollama tardó demasiado.", file=sys.stderr)
+        sys.exit(1)
     except requests.exceptions.RequestException as e:
         print(f"Error al contactar con Ollama en {url}: {e}", file=sys.stderr)
         # Si hay cuerpo de respuesta, lo mostramos para depurar
@@ -72,6 +92,8 @@ def resumir_cv(
         sys.exit(1)
 
     data = response.json()
+    duracion = time.time() - inicio
+    print(f"Respuesta recibida en {duracion:.1f} segundos")
 
     # En /api/generate, el texto viene en data["response"]
     try:
@@ -83,7 +105,24 @@ def resumir_cv(
 
 
 def main():
-    resumen = resumir_cv(ARCHIVO_MD)
+    # Permitir pasar archivo por línea de comandos
+    parser = argparse.ArgumentParser(
+        description="Resume un CV en Markdown usando Ollama"
+    )
+    parser.add_argument(
+        "archivo", nargs="?", default=ARCHIVO_MD,
+        help=f"Ruta al archivo Markdown (por defecto: {ARCHIVO_MD})"
+    )
+    parser.add_argument(
+        "--modelo", default=MODELO_DEFECTO,
+        help=f"Modelo de Ollama a usar (por defecto: {MODELO_DEFECTO})"
+    )
+    args = parser.parse_args()
+
+    resumen = resumir_cv(args.archivo, modelo=args.modelo)
+    print("\n" + "="*60)
+    print("RESUMEN DEL CV")
+    print("="*60)
     print(resumen)
 
 
